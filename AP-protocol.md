@@ -11,29 +11,29 @@ The **Network Initializer** reads a local **Network Initialization File** that e
 The Network Initialization File has the following format:
 
 - 10 done lines: `drone_id CDN connected_drone_ids PDR`.
-    
-    Consider this example line: `d1 3 d3 d4 d5 0.05`. It means that drone `d1` is connected with 3 drones `d3`, `d4` and `d5`, and that its Packet Drop Probability is 0.05 .
+
+    Consider this example line: `d1 3 d3 d4 d5 0.05`. It means that drone `d1` is connected with 3 drones `d3`, `d4` and `d5`, and that its Packet Drop Probability is 0.05.
 
     Note that the PDR is defined between 0 and 1 (0.05 = 5%).
-    
+
     Note that `connected_drone_ids` cannot contain `drone_id` nor repetitions.
-    
+
 - 2 client lines: `client_id CDN connected_drone_ids`.
-    
+
     Consider this example line: `c1 2 d2 d3`. It means that client `c1` is connected with 2 drones `d2` and `d3`.
-    
+
     Note that `connected_drone_ids` cannot contain `client_id` nor repetitions.
 
     Note that a client cannot connect to other clients or servers.
-    
+
 - 2 server lines: `server_id CDN connected_drone_ids`.
-    
+
     Consider this example line: `s1 2 d4 d5`. It means that server `s1` is connected with 2 drones `d4` and `d5`.
-    
+
     Note that `connected_drone_ids` cannot contain `server_id` nor repetitions.
 
     Note that a server cannot connect to other clients or servers.
-    
+
 
 Importantly, the Network Initializer should also setup the Rust channels between the nodes and the Simulation Controller (see the Simulation Controller section).
 
@@ -41,7 +41,7 @@ Importantly, the Network Initializer should also setup the Rust channels between
 
 A drone is characterized by a parameter that regulates what to do when a packet is received, that thus influences the simulation. This parameter is provided in the Network Initialization File.
 
-Packet Drop Probability: The drone drops the received packet with probability equal to the Packet Drop Probability. 
+Packet Drop Probability: The drone drops the received packet with probability equal to the Packet Drop Probability.
 
 # Messages and fragments
 
@@ -69,7 +69,7 @@ When B receives the packet, it sees that the next hop is E, increments hop_index
 
 When F receives the packet, it sees that the next hop is F, increments hop_index by 1 and sends the packet to it.
 
-When D receives the packet, it sees there are no more hops (as hop_index is equal to n_hops  - 1) so it must be the final destination: it can thus process the packet.
+When D receives the packet, it sees there are no more hops (as hop_index is equal to n_hops - 1) so it must be the final destination: it can thus process the packet.
 
 ```rust
 struct SourceRoutingHeader {
@@ -131,7 +131,7 @@ For every response or acknowledgment the initiator receives, it updates its unde
 
 The flood can terminate when:
 
-- 
+-
 
 # **Client-Server Protocol: Fragments**
 
@@ -166,7 +166,7 @@ struct Message{
 	source_routing_header: SourceRoutingHeader
 }
 
-// The serialized and possibly fragmented message sent by 
+// The serialized and possibly fragmented message sent by
 // either the client or server identified by source_id.
 struct MessageHeader {
 	/// ID of client or server
@@ -204,8 +204,8 @@ enum ChatResponse{
 }
 
 enum TextMessage{// (text == media server with text)
-	TextRequest(TextRequest), 
-	TextResponse(TextResponse) 
+	TextRequest(TextRequest),
+	TextResponse(TextResponse)
 }
 
 enum TextRequest{
@@ -218,7 +218,7 @@ enum TextResponse{
 	ServerType(ServerKind), //S -> C : server_type!(type)
 	FilesListResponse { //S -> C : files_list!(list_length, list_of_file_ids)
 		list_length: char,
-		list_of_file_ids: [u64,20], 
+		list_of_file_ids: [u64,20],
 	},
 	ErrorNoFiles, // S -> C : error_no_files!
 	File{ //S -> C : file!(file_size, file)
@@ -313,7 +313,7 @@ constitute files.
 ```rust
 struct Packet{ //fragment defined as entity exchanged by the drones.
 	pt: PacketType,
-	source_routing_header: SourceRoutingHeader, 
+	source_routing_header: SourceRoutingHeader,
 	session_id: u64
 	//sourcerouting header is inverted if necessary.
 }
@@ -323,12 +323,12 @@ enum PacketType {
 }
 
 struct Fragment{ // fragment defined as part of a message.
-	header: FragmentHeader, 
+	header: FragmentHeader,
 	data: FragmentData,
 }
 
 struct FragmentData{
-	data: [u8; 80], //it's possible to use .into_bytes() so that images 
+	data: [u8; 80], //it's possible to use .into_bytes() so that images
 	//can also be encoded->[u8, 80]
 	length: u8 // assembler will fragment/defragment data into bytes.
 }
@@ -339,7 +339,7 @@ pub struct FragmentHeader {
 	/// Total number of fragments, must be equal or greater than 1.
 	total_n_fragments: u64,
 	/// Index of the packet, from 0 up to total_n_fragments - 1.
-	fragment_index: u64, 
+	fragment_index: u64,
 }
 ```
 
@@ -364,7 +364,7 @@ It would then copy `file_size` elements of the `file` array at the correct offse
 
 Note that, if there are more than one fragment, `file_size` is 20 for all fragments except for the last, as the arrays carry as much data as possible.
 
-If the client or server has already received a fragment with the same `session_id`, then it just need copy the data of the fragment in the vector.
+If the client or server has already received a fragment with the same `session_id`, then it just needs to copy the data of the fragment in the vector.
 
 Once that the client or server has received all fragments (that is, `fragment_index` 0 to `total_n_fragments` -2), then it has reassembled the whole fragment.
 
@@ -386,7 +386,7 @@ The Simulation Controller can send the following commands to drones:
 
 `Spawn(id, code)`: This command adds a new drone to the network.
 
-`SetPacketDropRate(id, new_pdr)`: 
+`SetPacketDropRate(id, new_pdr)`:
 
 ### Simulation events
 
@@ -394,7 +394,7 @@ The Simulation Controller can receive the following events from nodes:
 
 `Topology(node_id, list_of_connected_ids, metadata)`: This event indicates that node `node_id` has been added to the network and its current neighbors are `list_of_connected_ids`. It can carry metadata that could be useful to display, such as the PDR and DR of Drones.
 
-`MessageSent(node_src, node_trg, metadata)`: This event indicates that node `node_src` has sent a message to `node_trg` . It can carry useful metadata that could be useful display, such as the kind of message, that would allow to debug what is going on in the network.
+`MessageSent(node_src, node_trg, metadata)`: This event indicates that node `node_src` has sent a message to `node_trg`. It can carry useful metadata that could be useful display, such as the kind of message, that would allow debugging what is going on in the network.
 
 ```
 										META-LEVEL COMMENT
