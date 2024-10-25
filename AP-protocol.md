@@ -158,73 +158,96 @@ Message is subject to fragmentation: see the dedicated section.
 Message (and Message only) can be dropped by drones.
 
 ```rust
-struct Message<M> {
-	/// Used and modified by drones to route the packet.
-	source_routing_header: SourceRoutingHeader,
-	fragment_header: ,
+struct Message{
 	message_header: MessageHeader,
-	m: M,
+	/// Shows the type of the message and contains the message.
+	message_content: MessageContent,
+	/// Used and modified by drones to route the packet.
+	source_routing_header: SourceRoutingHeader
 }
 
+// The serialized and possibly fragmented message sent by 
+// either the client or server identified by source_id.
 struct MessageHeader {
 	/// ID of client or server
 	source_id: Option<u64>,
 }
 
-// The serialized and possibly fragmented message sent by 
-// either the client or server identified by source_id.
-enum MessageType {
-	webserver_message: WebserverMessage,
-	chat_message_request: ChatMessageRequest,
-	chat_message_response: ,
+enum MessageContent{
+	ChatMessage(ChatMessage), // chat == communication server
+	TextMessage(TextMessage), // text == content server
+	MediaMessage(MediaMessage)// media == content server
 }
 
-enum WebserverMessage {
-    ServerTypeRequest,
-    ServerTypeResponse(ServerType),
-    FilesListRequest,
-    FilesListResponse {
-        list_length: char,
-        list_of_file_ids: [u64; ],
-    },
-    ErrorNoFilesResponse,
-    FileRequest {
-    },
-    FileResponse {
-        file_size: u64,
-        file: String,
-    },
-    ErrorFileNotFoundResponse,
-    MediaRequest {
-        media_id: &'static str,
-    },
-    MediaResponse {
-				media_id: u64,
-        media_size: u64,
-        media: std::fs::File,
-    },
-    ErrorNoMediaResponse,
-    ErrorMediaNotFoundResponse,
+enum ChatMessage{
+	ChatRequest(ChatRequest),
+	ChatResponse(ChatResponse)
 }
 
-enum ChatMessageRequest {
-    ClientListRequest,
-    MessageForRequest {
-        client_id: u64,
-        message_size: Box<char>,
-        message: [char; ],
-    },
-    ClientListResponse {
-    },
+enum ChatRequest{ //(chat == communication server)
+	ClientList, // => C -> S : client_list?
+	MessageFor { // => C -> S : message_for?(client_id, message)
+		// note: message_size omitted!
+		client: u64,
+		message: String,
+	},
 }
 
-enum ChatMessageResponse {
-    MessageFromResponse {
-        client_id: u64,
-        message_size: usize,
-        message: [usize; 64],
-    },
-    ErrorWrongClientIdResponse,
+enum ChatResponse{
+	ClientList(u64, Vec<u64>), //=> S -> C : client_list!(list_length, list_of_client_ids)
+	MessageFrom{ // => S -> C : message_from!(client_id, message)
+		// note: message_size omitted!
+		client: u64,
+		message: String
+	},
+	ErrWrongClient // => S -> C : error_wrong_client_id!
+}
+
+enum TextMessage{// (text == media server with text)
+	TextRequest(TextRequest), 
+	TextResponse(TextResponse) 
+}
+
+enum TextRequest{
+	ServerType, //C -> S : server_type?
+	FilesList, //C -> S : files_list?
+	File(file_id),// C -> S : file?(file_id)    note: additional params omitted!
+}
+
+enum TextResponse{
+	ServerType(ServerKind), //S -> C : server_type!(type)
+	FilesListResponse { //S -> C : files_list!(list_length, list_of_file_ids)
+		list_length: char,
+		list_of_file_ids: [u64,20], 
+	},
+	ErrorNoFiles, // S -> C : error_no_files!
+	File{ //S -> C : file!(file_size, file)
+		file_size: u64,
+		file: String,
+	},
+	ErrorFileNotFound, //S -> C : error_file_not_found!
+}
+
+enum MediaMessage{
+	MediaRequest(MediaRequest),
+	MediaResponse(MediaResponse)
+}
+
+struct MediaRequest{
+	Media{  //C -> S : media?(media_id, +media type+ )
+		media_id: u64
+		///media: media_kind
+	}
+}
+
+enum MediaResponse{
+	MediaResponse { //S -> C : media!(media_size, media, +media type+)
+		media_id: u64,
+		media_size: u64,
+		media: std::fs::File,
+	},
+	ErrorNoMediaResponse,
+	ErrorMediaNotFoundResponse,//S -> C : error_media_not_found!
 }
 ```
 
@@ -236,8 +259,7 @@ This message cannot be dropped by drones due to Packet Drop Probability.
 
 ```rust
 struct Error {
-	source_routing_header: SourceRoutingHeader,
-	session_id: char,
+	session_id: u64,
 	/// ID of drone, server of client that is not a neighbor:
 	id_not_neighbor: String,
 	ttl: u32,
@@ -254,7 +276,6 @@ This message cannot be dropped by drones due to Packet Drop Probability.
 
 ```rust
 struct Dropped {
-	source_routing_header: 
 	session_id: u64,
 }
 ```
@@ -271,6 +292,7 @@ pub struct Ack(AckInner);
 struct AckInner {
 	session_id: u64,
 	when: std::time::Instant,
+	// Time at which the message was received.
 }
 ```
 
@@ -289,17 +311,36 @@ constitute files.
 ### Fragment reassembly
 
 ```rust
-struct FragmentHeader {
+struct Packet{ //fragment defined as entity exchanged by the drones.
+	pt: PacketType,
+	source_routing_header: SourceRoutingHeader, 
+	session_id: u64
+	//sourcerouting header is inverted if necessary.
+}
+
+enum PacketType {
+	MsgPack(Fragment), ErrorPack(Error), AckPack(Ack), DroppedPack(Dropped)
+}
+
+struct Fragment{ // fragment defined as part of a message.
+	header: FragmentHeader, 
+	data: FragmentData,
+}
+
+struct FragmentData{
+	data: [u8; 80], //it's possible to use .into_bytes() so that images 
+	//can also be encoded->[u8, 80]
+	length: u8 // assembler will fragment/defragment data into bytes.
+}
+
+pub struct FragmentHeader {
 	/// Identifies the session to which this fragment belongs.
 	session_id: u64,
 	/// Total number of fragments, must be equal or greater than 1.
-	total_n_fragments: u64
+	total_n_fragments: u64,
 	/// Index of the packet, from 0 up to total_n_fragments - 1.
-	fragment_index: String,
-	next_fragment: NextFragment,
+	fragment_index: u64, 
 }
-
-type NextFragment = Option<Box<FragmentHeader>;
 ```
 
 To reassemble fragments into a single packet, a client or server uses the fragment header as follows.
