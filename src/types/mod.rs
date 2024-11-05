@@ -6,3 +6,4 @@ pub type SourceRoutingHeader = [NodeId; 16];
 
 pub mod message;
 pub mod packet;
+pub mod topology;
