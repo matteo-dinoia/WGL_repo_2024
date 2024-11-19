@@ -13,6 +13,9 @@ wg_internal = { path = "crates/wg_internal" }
 toml = "0.8.19"
 crossbeam-channel = "0.5.13"
 
+[features]
+serialize = ["wg_internal/serialize"]
+
 [[example]]
 name = "parser"
 path = "examples/config/parser.rs"
