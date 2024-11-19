@@ -19,7 +19,7 @@ serialize = ["wg_internal/serialize"]
 [[example]]
 name = "parser"
 path = "examples/config/parser.rs"
-required-features = ["wg_internal/serialize"]
+required-features = ["serialize"]
 
 [[example]]
 name = "drone_usage"
