@@ -16,6 +16,7 @@ crossbeam-channel = "0.5.13"
 [[example]]
 name = "parser"
 path = "examples/config/parser.rs"
+required-features = ["internal/serialize"]
 
 [[example]]
 name = "drone_usage"
