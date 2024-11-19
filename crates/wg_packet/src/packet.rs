@@ -1,4 +1,4 @@
-use network::{NodeId, SourceRoutingHeader};
+use wg_network::{NodeId, SourceRoutingHeader};
 
 // Is atomic unit to be sent
 pub struct Packet {

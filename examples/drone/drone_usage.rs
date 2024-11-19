@@ -1,13 +1,13 @@
 #![allow(unused)]
 
 use crossbeam_channel::{select, Receiver, Sender};
-use internal::drone::DroneOptions;
 use std::collections::HashMap;
 use std::thread;
-use wgl_2024::controller::Command;
-use wgl_2024::drone::Drone;
-use wgl_2024::network::NodeId;
-use wgl_2024::packet::{Packet, PacketType};
+use wg_2024::controller::Command;
+use wg_2024::drone::Drone;
+use wg_2024::network::NodeId;
+use wg_2024::packet::{Packet, PacketType};
+use wg_internal::drone::DroneOptions;
 
 /// Example of drone implementation
 struct MyDrone {

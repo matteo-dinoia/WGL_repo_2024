@@ -1,1 +1,1 @@
-pub use internal::*;
+pub use wg_internal::*;

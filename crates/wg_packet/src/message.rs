@@ -1,6 +1,6 @@
 use crate::packet::Fragment;
-use network::topology::ServerType;
-use network::{NodeId, SourceRoutingHeader};
+use wg_network::topology::ServerType;
+use wg_network::{NodeId, SourceRoutingHeader};
 
 #[derive(Debug)]
 pub struct Message {

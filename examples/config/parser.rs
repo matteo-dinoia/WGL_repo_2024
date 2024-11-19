@@ -6,7 +6,7 @@ use std::fs;
 ///
 /// [dependencies]
 /// toml = "0.8.19"
-use wgl_2024::config::Config;
+use wg_2024::config::Config;
 
 fn main() {
     let config_data = fs::read_to_string("config.toml").expect("Unable to read config file");
