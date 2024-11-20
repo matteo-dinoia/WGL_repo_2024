@@ -136,7 +136,7 @@ When a neighbor node receives the query, it processes it based on the following 
 ```rust
 struct QueryResult {
 	flood_id: u64,
-	sourceRoutingHeader: SourceRoutingHeader,
+	source_routing_header: SourceRoutingHeader,
 	path_trace: Vec<(u64, NodeType)>
 }
 ```

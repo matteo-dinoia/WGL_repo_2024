@@ -1,3 +1,4 @@
+use crate::{Query, QueryResult};
 use wg_network::{NodeId, SourceRoutingHeader};
 
 // Is atomic unit to be sent
@@ -11,6 +12,8 @@ pub enum PacketType {
     MsgFragment(Fragment),
     Nack(Nack),
     Ack(Ack),
+    Flood(Query),
+    FloodResult(QueryResult),
 }
 
 pub struct Nack {
