@@ -17,14 +17,14 @@ pub struct Node {
     pub neighbors: HashMap<NodeId, NodeRef>, //node ids
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum NodeType {
     Client(NodeId),
     Server(ServerType, NodeId),
     Drone(NodeId),
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ServerType {
     Chat,
     Text,
