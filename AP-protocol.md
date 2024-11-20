@@ -122,7 +122,7 @@ struct Query {
 	/// When ttl reaches 0, we start a QueryResult message that reaches back to the initiator
 	ttl: u8,
 	/// Records the nodes that have been traversed (to track the connections).
-	path_trace: Vec<(u64, NodeType)>
+	path_trace: Vec<(NodeId, NodeType)>
 }
 ```
 
@@ -136,8 +136,8 @@ When a neighbor node receives the query, it processes it based on the following 
 ```rust
 struct QueryResult {
 	flood_id: u64,
-	sourceRoutingHeader: SourceRoutingHeader,
-	path_trace: Vec<(u64, NodeType)>
+	source_routing_header: SourceRoutingHeader,
+	path_trace: Vec<(NodeId, NodeType)>
 }
 ```
 
