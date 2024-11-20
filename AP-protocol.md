@@ -279,14 +279,15 @@ Therefore, the packet is now a message that can be delivered.
 # Drone Protocol
 When a drone receives a packet, it **must** do the following:
 
-1. obtain the `hop_index` + 1 element of the `SourceRoutingHeader` vector `hops`, let's call it `next_hop`
+1. increase `hop_index` by 1
+2. obtain the (new `hop_index`) + 1 element of the `SourceRoutingHeader` vector `hops`, let's call it `next_hop`
 	* It **must ignore** intentionally to check `hop_index`.
 
-2. if `next_hop`
+3. if `next_hop`
 	* doesn't exist create a new packet of type Nack, precisely of type `DestinationIsDrone`. The packet must have the routing made of a vector but inverted and only contains the nodes from this drone to the sender. Send this packet as a normal packet. End here.
 	* if the `NodeId` is not a neighbor, then creates a new packet of type Nack, precisely of type `ErrorInRouting` with field the value of `NodeId` of next hop. Continue as other error.
 
-3. Proceed as follows based on packet type:
+4. Proceed as follows based on packet type:
 
 ### Flood Messages
 TODO  (If the packet is flood related, follow the rules in the flood section)
