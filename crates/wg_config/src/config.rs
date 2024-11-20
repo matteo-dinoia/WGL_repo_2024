@@ -1,7 +1,7 @@
 #[cfg(feature = "serialize")]
 use serde::Deserialize;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 #[cfg_attr(feature = "serialize", derive(Deserialize))]
 pub struct Drone {
     pub id: u64,
@@ -9,21 +9,21 @@ pub struct Drone {
     pub pdr: f64,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 #[cfg_attr(feature = "serialize", derive(Deserialize))]
 pub struct Client {
     pub id: u64,
     pub connected_drone_ids: Vec<u64>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 #[cfg_attr(feature = "serialize", derive(Deserialize))]
 pub struct Server {
     pub id: u64,
     pub connected_drone_ids: Vec<u64>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 #[cfg_attr(feature = "serialize", derive(Deserialize))]
 pub struct Config {
     pub drone: Vec<Drone>,
