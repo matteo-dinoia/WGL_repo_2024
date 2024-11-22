@@ -14,9 +14,15 @@ type NodeId = u64;
 
 # Network Initializer
 
-The **Network Initializer** reads a local **Network Initialization File** that encodes the network topology and the drone parameters and, accordingly, spawns the node threads and sets up the Rust channels for communicating between nodes.
-
-> Importantly, the Network Initializer should also setup the Rust channels between the nodes and the Simulation Controller (see the Simulation Controller section).
+The **Network Initializer**:
+1. reads a local **Network Initialization File** that encodes the network topology and the drone parameters
+2. checks that the initialization file adheres to the formatting and restrictions defined in the section below 
+3. checks that the initialization file represent a bidirectional graph
+4. accordingly to the network topology defined in the initalization file:
+	- spawns the node threads
+ 	- spawns the simulation controller thread
+ 	- sets up the Rust channels for communicating between nodes that are connected in the topology
+ 	- sets up the Rust channels for communication between nodes and the simulation controller
 
 ## Network Initialization File
 The **Network Initialization File** is in the `.toml` format, and structured as explained below:
