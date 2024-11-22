@@ -60,6 +60,9 @@ connected_drone_ids = ["connected_id1", "connected_id2", "connected_id3", "..."]
 - note that a server cannot connect to other clients or servers
 - note that a server should be connected to at least two drones
 
+### Additional requirements
+- note that the **Network Initialization File** should never contain two **nodes** with the same `id` value
+
 # Drone parameters: Packet Drop Rate
 
 A drone is characterized by a parameter that regulates what to do when a packet is received, that thus influences the simulation. This parameter is provided in the Network Initialization File.
