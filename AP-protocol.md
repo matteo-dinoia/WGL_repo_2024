@@ -13,9 +13,15 @@ type NodeId = u64;
 
 # Network Initializer
 
-The **Network Initializer** reads a local **Network Initialization File** that encodes the network topology and the drone parameters and, accordingly, spawns the node threads and sets up the Rust channels for communicating between nodes.
-
-> Importantly, the Network Initializer should also set up the Rust channels between the nodes and the Simulation Controller (see the Simulation Controller section).
+The **Network Initializer**:
+1. reads a local **Network Initialization File** that encodes the network topology and the drone parameters
+2. checks that the initialization file adheres to the formatting and restrictions defined in the section below
+3. checks that the initialization file represents a bidirectional graph
+4. according to the network topology, defined in the initialization file, performs the following actions(in no particular order):
+   - spawns the node threads
+   - spawns the simulation controller thread
+   - sets up the Rust channels for communicating between nodes that are connected in the topology
+   - sets up the Rust channels for communication between nodes and the simulation controller
 
 ## Network Initialization File
 The **Network Initialization File** is in the `.toml` format, and structured as explained below:
@@ -52,6 +58,9 @@ connected_drone_ids = ["connected_id1", "connected_id2", "connected_id3", "..."]
 - note that `connected_drone_ids` cannot contain `server_id` nor repetitions
 - note that a server cannot connect to other clients or servers
 - note that a server should be connected to at least two drones
+
+### Additional requirements
+- note that the **Network Initialization File** should never contain two **nodes** with the same `id` value
 
 # Drone parameters: Packet Drop Rate
 
@@ -129,7 +138,7 @@ Suppose that client A wants to send a message to server D.
 
 For detailed steps on how each drone processes packets, including verification, error handling, and forwarding, please refer to the [Drone Protocol](#drone-protocol) section.
 
-	
+
 ```rust
 struct SourceRoutingHeader {
 	// must be set to 1 initially by the sender
@@ -347,7 +356,7 @@ When a drone receives a packet, it **must** perform the following steps:
 5. **Step 5**: Proceed based on the packet type:
 
    - **Flood Messages**: If the packet is flood-related, follow the rules specified in the **Network Discovery Protocol** section.
-   
+
    - **`MsgFragment`**:
 
       a. **Check for Packet Drop**:
