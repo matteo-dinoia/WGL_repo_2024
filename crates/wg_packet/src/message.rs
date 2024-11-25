@@ -39,7 +39,7 @@ pub enum MessageContent {
     ErrWrongClientId,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ServerType {
     Chat,
     Text,
