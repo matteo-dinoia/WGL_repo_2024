@@ -1,6 +1,6 @@
 #![allow(unused)]
 
-use crossbeam_channel::{select, Receiver, Sender};
+use crossbeam_channel::{select_biased, unbounded, Receiver, Sender};
 use std::collections::HashMap;
 use std::thread;
 use wg_2024::controller::Command;
@@ -39,22 +39,22 @@ impl Drone for MyDrone {
 impl MyDrone {
     fn run_internal(&mut self) {
         loop {
-            select! {
+            select_biased! {
+                recv(self.sim_contr_recv) -> command_res => {
+                    if let Ok(_command) = command_res {
+                        // handle the simulation controller's command
+                    }
+                },
                 recv(self.packet_recv) -> packet_res => {
                     if let Ok(packet) = packet_res {
-                    // each match branch may call a function to handle it to make it more readable
-            match packet.pack_type {
+                        // each match branch may call a function to handle it to make it more readable
+                        match packet.pack_type {
                             PacketType::Nack(_nack) => unimplemented!(),
                             PacketType::Ack(_ack) => unimplemented!(),
                             PacketType::MsgFragment(_fragment) => unimplemented!(),
                             PacketType::FloodRequest(_) => unimplemented!(),
                             PacketType::FloodResponse(_) => unimplemented!(),
                         }
-                    }
-                },
-                recv(self.sim_contr_recv) -> command_res => {
-                    if let Ok(_command) = command_res {
-                        // handle the simulation controller's command
                     }
                 }
             }
