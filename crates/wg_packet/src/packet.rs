@@ -29,6 +29,7 @@ pub enum NackType {
     ErrorInRouting(NodeId), // contains id of not neighbor
     DestinationIsDrone,
     Dropped,
+    UnexpectedRecipient(NodeId),
 }
 
 #[derive(Debug, Clone)]
