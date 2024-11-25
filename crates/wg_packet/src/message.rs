@@ -1,20 +1,20 @@
 use wg_network::{NodeId, SourceRoutingHeader};
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Message {
     pub message_data: MessageData,
     pub routing_header: SourceRoutingHeader,
 }
 
 // Only part fragmentized
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct MessageData {
     pub source_id: NodeId,
     pub session_id: u64,
     pub content: MessageContent,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum MessageContent {
     // Client -> Server
     ReqServerType,
@@ -31,7 +31,7 @@ pub enum MessageContent {
     RespFilesList(Vec<u64>),
     RespFile(Vec<u8>),
     RespMedia(Vec<u8>),
-    ErrUnsupporedRequestType,
+    ErrUnsupportedRequestType,
     ErrRequestedNotFound,
 
     RespClientList(Vec<NodeId>),
