@@ -335,6 +335,14 @@ The Simulation Controller can receive the following events from nodes:
 `MessageSent(node_src, node_trg, metadata)`: This event indicates that node `node_src` has sent a message to `node_trg`. It can carry useful metadata that could be useful display, such as the kind of message, that would allow debugging what is going on in the network.
 
 
+## Note on commands and events
+
+Due to the importance of these messages, drones MUST prioritize handling commands from the simulation controller over messages and fragments.
+
+This can be done by using [the select_biased! macro](https://shadow.github.io/docs/rust/crossbeam/channel/macro.select_biased.html) and putting the simulation controller channel first, as seen in the example.
+
+
+
 # **Client-Server Protocol: High-level Messages**
 
 These are the kinds of high-level messages that we expect can be exchanged between clients and servers.
