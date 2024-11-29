@@ -472,6 +472,14 @@ The Simulation Controller can receive the following events from nodes:
 
 `PacketDropped(packet)`: This event indicates that node has dropped a packet. All the informations about the `src_id`, `dst_id` and `path` are stored in the packet routing header.
 
+## Note on commands and events
+
+Due to the importance of these messages, drones MUST prioritize handling commands from the simulation controller over messages and fragments.
+
+This can be done by using [the select_biased! macro](https://shadow.github.io/docs/rust/crossbeam/channel/macro.select_biased.html) and putting the simulation controller channel first, as seen in the example.
+
+
+
 # **Client-Server Protocol: High-level Messages**
 
 These are the kinds of high-level messages that we expect can be exchanged between clients and servers.
